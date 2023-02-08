@@ -142,6 +142,8 @@ bool SuperPoint::process_input(const BufferManager &buffers, const cv::Mat &imag
     desc_dims_.d[1] = 256;
     desc_dims_.d[2] = image.rows / 8;
     desc_dims_.d[3] = image.cols / 8;
+
+    // Create buffer in host?
     auto *host_data_buffer = static_cast<float *>(buffers.getHostBuffer(super_point_config_.input_tensor_names[0]));
 
     for (int row = 0; row < image.rows; ++row) {
@@ -171,6 +173,7 @@ void SuperPoint::remove_borders(std::vector<std::vector<int>> &keypoints, std::v
                                 int width) {
     std::vector<std::vector<int>> keypoints_selected;
     std::vector<float> scores_selected;
+    // Here?
     for (int i = 0; i < keypoints.size(); ++i) {
         bool flag_h = (keypoints[i][0] >= border) && (keypoints[i][0] < (height - border));
         bool flag_w = (keypoints[i][1] >= border) && (keypoints[i][1] < (width - border));
@@ -186,6 +189,7 @@ void SuperPoint::remove_borders(std::vector<std::vector<int>> &keypoints, std::v
 std::vector<size_t> SuperPoint::sort_indexes(std::vector<float> &data) {
     std::vector<size_t> indexes(data.size());
     iota(indexes.begin(), indexes.end(), 0);
+    // There?
     sort(indexes.begin(), indexes.end(), [&data](size_t i1, size_t i2) { return data[i1] > data[i2]; });
     return indexes;
 }
@@ -195,6 +199,7 @@ void SuperPoint::top_k_keypoints(std::vector<std::vector<int>> &keypoints, std::
         std::vector<std::vector<int>> keypoints_top_k;
         std::vector<float> scores_top_k;
         std::vector<size_t> indexes = sort_indexes(scores);
+        // Hmm hmm
         for (int i = 0; i < k; ++i) {
             keypoints_top_k.push_back(keypoints[indexes[i]]);
             scores_top_k.push_back(scores[indexes[i]]);
@@ -207,6 +212,8 @@ void SuperPoint::top_k_keypoints(std::vector<std::vector<int>> &keypoints, std::
 void
 normalize_keypoints(const std::vector<std::vector<int>> &keypoints, std::vector<std::vector<double>> &keypoints_norm,
                     int h, int w, int s) {
+    
+    // Hmm hmm
     for (auto &keypoint : keypoints) {
         std::vector<double> kp = {keypoint[0] - s / 2 + 0.5, keypoint[1] - s / 2 + 0.5};
         kp[0] = kp[0] / (w * s - s / 2 - 0.5);
@@ -222,6 +229,7 @@ int clip(int val, int max) {
     return std::min(val, max - 1);
 }
 
+// Improve?
 void grid_sample(const float *input, std::vector<std::vector<double>> &grid,
                  std::vector<std::vector<double>> &output, int dim, int h, int w) {
     // descriptors 1, 256, image_height/8, image_width/8
@@ -267,6 +275,7 @@ double vector_normalize(Iter_T first, Iter_T last) {
     return sqrt(inner_product(first, last, first, 0.0));
 }
 
+// Hmm hmm
 void normalize_descriptors(std::vector<std::vector<double>> &dest_descriptors) {
     for (auto &descriptor : dest_descriptors) {
         double norm_inv = 1.0 / vector_normalize(descriptor.begin(), descriptor.end());
@@ -278,28 +287,45 @@ void normalize_descriptors(std::vector<std::vector<double>> &dest_descriptors) {
 void SuperPoint::sample_descriptors(std::vector<std::vector<int>> &keypoints, float *descriptors,
                                     std::vector<std::vector<double>> &dest_descriptors, int dim, int h, int w, int s) {
     std::vector<std::vector<double>> keypoints_norm;
+
+    // Nothing ....
     normalize_keypoints(keypoints, keypoints_norm, h, w, s);
+    
+    // Hmm hmm
     grid_sample(descriptors, keypoints_norm, dest_descriptors, dim, h, w);
+
+    // Nothing ...
     normalize_descriptors(dest_descriptors);
 }
 
 bool SuperPoint::process_output(const BufferManager &buffers, Eigen::Matrix<double, 259, Eigen::Dynamic> &features) {
     keypoints_.clear();
     descriptors_.clear();
+
+    // Allocate buffer for output in host
     auto *output_score = static_cast<float *>(buffers.getHostBuffer(super_point_config_.output_tensor_names[0]));
     auto *output_desc = static_cast<float *>(buffers.getHostBuffer(super_point_config_.output_tensor_names[1]));
+    
     int semi_feature_map_h = semi_dims_.d[1];
     int semi_feature_map_w = semi_dims_.d[2];
+    
     std::vector<float> scores_vec(output_score, output_score + semi_feature_map_h * semi_feature_map_w);
+    
+    // Nothing ...
     find_high_score_index(scores_vec, keypoints_, semi_feature_map_h, semi_feature_map_w,
                           super_point_config_.keypoint_threshold);
+    
+    // Hmm Hmm
     remove_borders(keypoints_, scores_vec, super_point_config_.remove_borders, semi_feature_map_h, semi_feature_map_w);
+    
+
     top_k_keypoints(keypoints_, scores_vec, super_point_config_.max_keypoints);
     
     features.resize(259, scores_vec.size());
     int desc_feature_dim = desc_dims_.d[1];
     int desc_feature_map_h = desc_dims_.d[2];
     int desc_feature_map_w = desc_dims_.d[3];
+    
     sample_descriptors(keypoints_, output_desc, descriptors_, desc_feature_dim, desc_feature_map_h, desc_feature_map_w);
     
     for (int i = 0; i < scores_vec.size(); i++){
