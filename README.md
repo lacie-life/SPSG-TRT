@@ -36,14 +36,6 @@ onnxruntime==1.11.1
 
 tensorrt==8.4.1.5
 
-## Convert model step
-
-(1) torch -> onnx;
-
-(2) onnx -> onnxsim;
-
-(3) int64 -> int32;
-
 ## Convert model(Optional)
 The converted model is already provided in the [weights](./weights) folder, if you are using the pretrained model officially provided by [SuperPoint and SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork), you do not need to go through this step.
 
