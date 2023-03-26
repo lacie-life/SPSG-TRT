@@ -23,11 +23,17 @@ docker run -it --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --p
 
 ## Environment required
 cuda==11.6
+
 torch==1.9.1
+
 onnx==1.11.0
+
 onnx-simplifier==0.3.10
+
 onnxoptimizer==0.2.7
+
 onnxruntime==1.11.1
+
 tensorrt==8.4.1.5
 
 ## Convert model(Optional)
