@@ -15,12 +15,6 @@ SuperPoint and SuperGlue with TensorRT.
 | SuperGlue (256 dims)   | 7.47 MS | 58.83 MS    |
 | FPS (superpoint one time + superglue one time)   | $\approx$ 117 FPS | $\approx$ 13 FPS    |
 
-## Docker(Recommand)
-```bash
-docker pull yuefan2022/tensorrt-ubuntu20.04-cuda11.6:latest
-docker run -it --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --privileged --runtime nvidia --gpus all --volume ${PWD}:/workspace --workdir /workspace --name tensorrt yuefan2022/tensorrt-ubuntu20.04-cuda11.6:latest /bin/bash
-```
-
 ## Environment required
 cuda==11.6
 
