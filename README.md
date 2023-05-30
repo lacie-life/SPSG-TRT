@@ -1,6 +1,6 @@
 # SuperPoint SuperGlue TensorRT
 SuperPoint and SuperGlue with TensorRT. 
-Origin repository you can find [here](https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT)
+Origin repository you can find [here](https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT). I added some step for convert model and environment required
 ## Demo
 <img src="image/superpoint_superglue_tensorrt.gif" width = "640" height = "240"  alt="match_image" border="10" />
 
